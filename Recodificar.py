@@ -21,5 +21,17 @@ if s == 2:
     with open('Login.txt', 'rb') as enc_file: 
         encrypted = enc_file.read() 
     original = fernet.decrypt(encrypted)
-    print(repr(str(original)))
+    with open("temp.txt", 'w') as temp:
+        temp.write(str(original, encoding="utf-8").replace("\r",""))
+    with open("temp.txt", 'r') as temp:
+        bonito = temp.read().splitlines()
+    with open("temp.txt", 'w') as temp:
+        temp.write("")
+        
+    print("\n\t", end="")
+    print(repr(str(original)))    
+    print("\n\t", end="")
+    print(bonito)
+    print("\n\t", end="")
+    print("\n\t".join(bonito))
     input()

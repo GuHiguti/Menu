@@ -1,5 +1,6 @@
 from re import M
 import time
+from typing import List
 import keyboard
 from os import read, system
 from cryptography.fernet import Fernet
@@ -52,6 +53,79 @@ def crypt_login():
     with open("temp.txt", 'w') as temp:
         temp.write("")
     return Lista
+
+#Trata os dados de cadastro novo
+def crypt_cadastro(Novo):
+    #Lê o novo arquivo codificado
+    with open("chave.key", "rb") as file:
+        chave_lida = file.read()
+    fernet = Fernet(chave_lida) 
+    with open('Login.txt', 'rb') as enc_file: 
+        encrypted = enc_file.read() 
+    login = fernet.decrypt(encrypted) 
+
+    #Salva as informações como string
+    with open("temp.txt", 'w') as temp:
+        temp.write(str(login, encoding="utf-8").replace("\r",""))
+    with open("temp.txt", 'r') as temp:
+        Lista = temp.read()
+    with open("temp.txt", 'w') as temp:
+        temp.write("")
+    with open("temp.txt", 'w') as temp:
+        temp.write(str(Lista))
+    with open("temp.txt", 'a') as temp:
+        temp.write(Novo)
+
+    #Codifica e salva no Login
+    key = Fernet.generate_key() 
+    with open('chave.key', 'wb') as filekey: 
+        filekey.write(key)   
+    fernet = Fernet(key) 
+    with open('temp.txt', 'rb') as data:
+        original = data.read()
+    encrypted = fernet.encrypt(original) 
+    with open('Login.txt', 'wb') as encrypted_file: 
+        encrypted_file.write(encrypted) 
+
+#trata os dados de exclusão de usuário
+def crypt_excluir(Novo):
+    clear()
+    #Lê o novo arquivo codificado
+    with open("chave.key", "rb") as file:
+        chave_lida = file.read()
+    fernet = Fernet(chave_lida) 
+    with open('Login.txt', 'rb') as enc_file: 
+        encrypted = enc_file.read() 
+    login = fernet.decrypt(encrypted) 
+
+    #Salva as informações como string
+    with open("temp.txt", 'w') as temp:
+        temp.write(str(login, encoding="utf-8").replace("\r",""))
+    with open("temp.txt", 'r') as temp:
+        Lista = temp.read().splitlines()
+    del(Lista[Novo+1])
+    del(Lista[Novo])
+    Lista = '\n'.join(Lista)
+    with open("temp.txt", 'w') as temp:
+        temp.write(Lista)    
+
+    #Codifica e salva no Login
+    key = Fernet.generate_key() 
+    with open('chave.key', 'wb') as filekey: 
+        filekey.write(key)   
+    fernet = Fernet(key) 
+    with open('temp.txt', 'rb') as data:
+        original = data.read()
+    encrypted = fernet.encrypt(original) 
+    with open('Login.txt', 'wb') as encrypted_file: 
+        encrypted_file.write(encrypted) 
+
+    #Limpa memória temporária
+    with open("temp.txt", 'w') as temp:
+        temp.write("")
+    
+    print("O usuário foi excluído com sucesso!")
+    time.sleep(1)
 
 #criptografia do Menu
 
@@ -124,11 +198,35 @@ def cadastrar():
         else:
             N_senha = input("Digite a nova senha: ")
             N_add = "\n" + N_login + "\n" + N_senha
-        clear()        
-    input()
+            crypt_cadastro(N_add)
+        clear()
 
 #Exclui um usuário existente
-
+def excluir():
+    input()    
+    clear()
+    i = input('Tem certeza que deseja apagar um usuário? s/n\n')
+    if i == "s" or i == "sim":
+        v = 0
+        i = 0
+        dados = crypt_login()
+        clear()
+        Ex_usuario = input("Qual usuário deseja excluir? ")
+        for linhas in dados:
+            if Ex_usuario == linhas and i%2==0:
+                v = 1
+                print(dados)
+                Ex_senha = input("Qual a senha para este usuário? ")
+                if Ex_senha==dados[i+1]:
+                    crypt_excluir(i)
+                else:
+                    print("Senha incorreta")
+                    time.sleep(1)
+            i+=1
+        if v==0:
+            print("Nome de usuário incorreto")
+            time.sleep(1)
+                    
 #Encerra o programa
 def logoff():
     clear()
