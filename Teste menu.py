@@ -129,6 +129,7 @@ def crypt_excluir(Novo):
 
 #criptografia do Menu
 
+
 #Faz o login com usuário e senha
 #falta: implementar hierarquia
 def login():
